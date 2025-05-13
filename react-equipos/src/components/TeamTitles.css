@@ -1,0 +1,741 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Estilos para tema oscuro */
+[data-theme="dark"] {
+  --bg-color: #000000;
+  --header-bg: linear-gradient(145deg, #1E1E1E, #000000);
+  --card-bg: linear-gradient(145deg, #1E1E1E, #2B2B2B);
+  --text-color: #ffffff;
+  --text-secondary: #a0aec0;
+  --button-gradient: linear-gradient(145deg, #4C4CFF, #5A5AFF);
+  --button-hover: linear-gradient(145deg, #5A5AFF, #4C4CFF);
+  --button-secondary-gradient: linear-gradient(145deg, #6b7280, #4b5563); /* Gris para ver equipos */
+  --button-secondary-hover: linear-gradient(145deg, #4b5563, #6b7280);
+  --intro-card: linear-gradient(145deg, #4C4CFF, #A020F0);
+  --input-bg: #1a202c;
+  --card-shadow: 0 10px 20px rgba(160, 32, 240, 0.3);
+  --header-text: #ffffff;
+  --delete-button: #FF4D4D;
+  --delete-button-hover: #FF1A1A;
+  --edit-button: #4C4CFF;
+  --modal-bg: #1E1E1E;
+  --error-bg: #2d0707;
+  --error-text: #ff6b6b;
+}
+
+/* Estilos para tema claro - Mejorado */
+[data-theme="light"] {
+  --bg-color: #f7fafc;
+  --header-bg: #3357E9;
+  --card-bg: linear-gradient(145deg, #ffffff, #f7fafc);
+  --text-color: #1a202c;
+  --text-secondary: #4a5568;
+  --button-gradient: linear-gradient(145deg, #3B82F6, #2563EB);
+  --button-hover: linear-gradient(145deg, #2563EB, #3B82F6);
+  --button-secondary-gradient: linear-gradient(145deg, #9ca3af, #6b7280);
+  --button-secondary-hover: linear-gradient(145deg, #6b7280, #9ca3af);
+  --intro-card: linear-gradient(145deg, #3B82F6, #2563EB);
+  --input-bg: #edf2f7;
+  --card-shadow: 0 10px 20px rgba(37, 99, 235, 0.2);
+  --header-text: #ffffff;
+  --delete-button: #e53e3e;
+  --delete-button-hover: #c53030;
+  --edit-button: #3B82F6;
+  --modal-bg: #ffffff;
+  --error-bg: #fee2e2;
+  --error-text: #b91c1c;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Header styles */
+.header {
+  background: var(--header-bg);
+  color: var(--header-text);
+  padding: 1rem;
+  text-align: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Main container */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* Liga selector styles */
+.liga-selector {
+  margin-bottom: 1.5rem;
+}
+
+.liga-selector select {
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  border: 1px solid var(--text-secondary);
+  font-size: 1rem;
+  background-color: var(--input-bg);
+  color: var(--text-color);
+}
+
+/* Liga info styles */
+.liga-info {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.liga-logo {
+  width: 60px;
+  height: 60px;
+  margin-right: 1rem;
+}
+
+.liga-details {
+  flex: 1;
+}
+
+.liga-name {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 0;
+  color: var(--text-color);
+}
+
+.liga-meta {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+/* Team cards grid */
+.teams-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+/* Team card styles */
+.team-card {
+  border: 1px solid color-mix(in srgb, var(--input-bg) 80%, var(--text-color));
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--card-shadow);
+  display: flex;
+  flex-direction: column;
+  background: var(--card-bg);
+}
+
+.team-card-header {
+  padding: 1rem;
+  background-color: color-mix(in srgb, var(--card-bg) 95%, var(--text-color));
+  border-bottom: 1px solid color-mix(in srgb, var(--input-bg) 80%, var(--text-color));
+}
+
+.team-name {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 0;
+  color: var(--text-color);
+}
+
+.team-meta {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+.team-card-body {
+  padding: 1rem;
+  flex: 1;
+}
+
+.team-card-footer {
+  padding: 1rem;
+  border-top: 1px solid color-mix(in srgb, var(--input-bg) 80%, var(--text-color));
+}
+
+/* Título-specific styles */
+.titulo-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--input-bg) 80%, var(--text-color));
+  font-size: 1.1rem;
+}
+
+.titulo-item:last-child {
+  border-bottom: none;
+}
+
+.titulo-details {
+  flex-grow: 1;
+  margin-right: 1.5rem;
+}
+
+.titulo-name { 
+  font-weight: 600; 
+  font-size: 1.2rem;
+  color: var(--text-color);
+}
+
+.titulo-year { 
+  color: var(--text-secondary); 
+  font-size: 1rem; 
+}
+
+.titulo-delete-btn {
+  padding: 0.5rem 0.8rem;
+  font-size: 1rem;
+  background-color: var(--delete-button);
+  color: white;
+}
+
+.titulo-delete-btn:hover {
+  background-color: var(--delete-button-hover);
+}
+
+#add-titulo-form { 
+  margin-top: 2rem; 
+  padding-top: 2rem; 
+  border-top: 1px solid color-mix(in srgb, var(--input-bg) 80%, var(--text-color));
+  width: 100%;
+}
+
+#add-titulo-form h3 { 
+  font-size: 1.3rem; 
+  font-weight: 600; 
+  margin-bottom: 1.5rem;
+  color: var(--text-color);
+}
+
+#add-titulo-form input {
+  width: 100%;
+  padding: 0.8rem;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  border: 1px solid color-mix(in srgb, var(--input-bg) 80%, var(--text-color));
+  border-radius: 4px;
+  background-color: var(--input-bg);
+  color: var(--text-color);
+}
+
+/* Button styles */
+.btn {
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.8rem 1.5rem;
+  font-size: 1rem;
+}
+
+.btn-info { 
+  background: var(--button-gradient);
+  color: white; 
+}
+
+.btn-info:hover { 
+  background: var(--button-hover);
+}
+
+.btn-success { 
+  background-color: #4CAF50; 
+  color: white; 
+}
+
+.btn-success:hover { 
+  background-color: #3e8e41; 
+}
+
+.btn-danger {
+  background-color: var(--delete-button);
+  color: white;
+  padding: 0.5rem 1rem;
+}
+
+.btn-danger:hover {
+  background-color: var(--delete-button-hover);
+}
+
+.w-full {
+  width: 100%;
+}
+
+/* Titles container */
+.titulo-list {
+  margin-bottom: 2rem;
+  border: 1px solid color-mix(in srgb, var(--input-bg) 80%, var(--text-color));
+  border-radius: 8px;
+  padding: 1rem;
+  background-color: color-mix(in srgb, var(--card-bg) 95%, var(--text-color));
+}
+
+/* Footer styles */
+.footer {
+  background: var(--header-bg);
+  color: var(--header-text);
+  padding: 1rem;
+  text-align: center;
+  margin-top: 2rem;
+}
+
+/* Fix number input appearance */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Action buttons */
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.action-buttons .btn { 
+  flex: 1; 
+}
+
+.w-full {
+  width: 100%;
+}
+
+/* Card styles */
+.card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background: var(--card-bg);
+  color: var(--text-color);
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--card-shadow);
+}
+
+/* Main content styles */
+main {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem !important;
+  flex: 1;
+  background-color: var(--bg-color);
+}
+
+/* Animaciones para agregar y eliminar */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(20px); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* Clases de animación */
+.animate-fade-in {
+  animation: fadeIn 0.5s ease forwards;
+}
+
+.animate-fade-out {
+  animation: fadeOut 0.5s ease forwards;
+}
+
+.animate-shake {
+  animation: shake 0.5s ease;
+}
+
+.animate-pulse {
+  animation: pulse 0.5s ease;
+}
+
+.animate-slide-in {
+  animation: slideIn 0.5s ease forwards;
+}
+
+/* Estilos para confirmación de eliminación en modo claro */
+[data-theme="light"] .delete-confirm-overlay {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="light"] .delete-confirm-dialog {
+  background-color: #ffffff;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  color: #1a202c;
+}
+.delete-confirm-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  animation: fadeIn 0.3s ease;
+}
+
+.delete-confirm-dialog {
+  background: var(--modal-bg);
+  border-radius: 8px;
+  padding: 1.5rem;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.3s ease;
+}
+
+.delete-confirm-dialog h3 {
+  margin-top: 0;
+  color: var(--text-color);
+}
+
+.delete-confirm-dialog p {
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+}
+
+.delete-confirm-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+/* Estilos para notificaciones */
+.notification {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+.notification-success {
+  background-color: #48bb78;
+}
+
+.notification-error {
+  background-color: var(--delete-button);
+}
+
+/* Mejoras para el modo claro */
+/* Estilos específicos para tarjetas de equipo en modo claro */
+[data-theme="light"] .team-card {
+  background: var(--card-bg);
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .team-card-header {
+  background-color: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+[data-theme="light"] .team-card-body {
+  background-color: #ffffff;
+}
+
+[data-theme="light"] .titulo-list {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+}
+
+[data-theme="light"] .team-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 15px rgba(71, 118, 230, 0.2);
+}
+
+[data-theme="light"] .btn-info {
+  background: var(--button-gradient);
+  box-shadow: 0 4px 6px rgba(71, 118, 230, 0.2);
+  transition: all 0.3s ease;
+}
+
+[data-theme="light"] .btn-info:hover {
+  background: var(--button-hover);
+  box-shadow: 0 6px 8px rgba(71, 118, 230, 0.3);
+  transform: translateY(-2px);
+}
+
+[data-theme="light"] .titulo-item {
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+  transition: background-color 0.3s ease;
+}
+
+[data-theme="light"] .titulo-item:hover {
+  background-color: rgba(237, 242, 247, 0.8);
+}
+
+/* Animaciones para botones */
+.btn {
+  transition: all 0.3s ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.titulo-delete-btn {
+  transition: all 0.3s ease;
+}
+
+.titulo-delete-btn:hover {
+  transform: scale(1.1);
+}
+
+/* Animación para el modal */
+.modal-overlay {
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+  animation: fadeIn 0.4s ease;
+}
+
+/* Animación para formularios */
+form input, form select, form textarea {
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+form input:focus, form select:focus, form textarea:focus {
+  border-color: var(--edit-button);
+  box-shadow: 0 0 0 3px rgba(71, 118, 230, 0.2);
+}
+
+/* Animación para agregar título */
+.add-titulo-animation {
+  animation: pulse 0.5s ease;
+}
+
+/* Animación para eliminar título */
+.delete-titulo-animation {
+  animation: shake 0.5s ease;
+}
+
+/* Mejoras específicas para formularios en modo claro */
+[data-theme="light"] #add-titulo-form {
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  border-top: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+[data-theme="light"] #add-titulo-form input {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  color: #1a202c;
+}
+
+[data-theme="light"] #add-titulo-form input:focus {
+  border-color: #3B82F6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+[data-theme="light"] .liga-selector select {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  color: #1a202c;
+}
+
+/* Tailwind dark mode overrides */
+.dark\:bg-gray-800 {
+  background-color: var(--card-bg) !important;
+}
+
+.dark\:bg-gray-700 {
+  background-color: color-mix(in srgb, var(--card-bg) 90%, var(--text-color)) !important;
+}
+
+.dark\:bg-gray-900 {
+  background-color: var(--bg-color) !important;
+}
+
+.dark\:text-gray-400 {
+  color: var(--text-secondary) !important;
+}
+
+.dark\:text-gray-200 {
+  color: var(--text-color) !important;
+}
+
+.dark\:border-gray-700 {
+  border-color: color-mix(in srgb, var(--input-bg) 80%, var(--text-color)) !important;
+}
+
+.dark\:divide-gray-600 {
+  border-color: color-mix(in srgb, var(--input-bg) 70%, var(--text-color)) !important;
+}
+
+/* Modal styles to match Teams.css */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+  background: var(--card-bg);
+  padding: 2rem;
+  border-radius: 0.5rem;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: fadeIn 0.4s ease;
+}
+
+/* Card styles to match Teams.css */
+.card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background: var(--card-bg);
+  color: var(--text-color);
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.card:hover {
+  transform: translateY(-10px);
+  box-shadow: var(--card-shadow);
+}
+
+/* Liga info card styles */
+.liga-info-card {
+  background: var(--card-bg);
+  color: var(--text-color);
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  box-shadow: var(--card-shadow);
+  grid-column: 1 / -1;
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transform: none !important;
+}
+
+.liga-info-card:hover {
+  transform: none !important;
+  box-shadow: var(--card-shadow);
+}
+
+.liga-info-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  width: 100%;
+}
+
+.liga-logo {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  margin-right: 1.5rem;
+}
+
+.liga-detail-item {
+  padding: 0.75rem;
+  border-radius: 0.25rem;
+  color: var(--text-color);
+  text-align: center;
+}
+
+.liga-trofeo {
+  width: 100%;
+  max-width: 250px;
+  height: auto;
+  object-fit: contain;
+  border-radius: 0.25rem;
+  margin-top: 1rem;
+}
+
+/* Stadium logo styles */
+.stadium-logo {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 0.25rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Team card enhancements */
+.team-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.team-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--card-shadow);
+}

@@ -1,0 +1,280 @@
+
+/* Teams.css */
+/* Estilos para tema oscuro */
+[data-theme="dark"] {
+    --bg-color: #000000;
+    --header-bg: linear-gradient(145deg, #1E1E1E, #000000);
+    --card-bg: linear-gradient(145deg, #1E1E1E, #2B2B2B);
+    --text-color: #ffffff;
+    --text-secondary: #a0aec0;
+    --input-bg: #1a202c;
+    --card-shadow: 0 10px 20px rgba(160, 32, 240, 0.3);
+    --header-text: #ffffff;
+    --error-bg: #2d0707;
+    --error-text: #ff6b6b;
+}
+
+/* Estilos para tema claro */
+[data-theme="light"] {
+    --bg-color: #f7fafc;
+    --header-bg: #3357E9;
+    --card-bg: linear-gradient(145deg, #ffffff, #f7fafc);
+    --text-color: #1a202c;
+    --text-secondary: #4a5568;
+    --input-bg: #edf2f7;
+    --card-shadow: 0 10px 20px rgba(37, 99, 235, 0.2);
+    --header-text: #ffffff;
+    --error-bg: #fee2e2;
+    --error-text: #b91c1c;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: background-color 0.3s ease, color 0.3s ease;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.header-bg { background: var(--header-bg); }
+main { flex: 1; }
+
+.card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: var(--card-bg);
+    color: var(--text-color);
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+}
+.card:hover {
+    transform: translateY(-10px);
+    box-shadow: var(--card-shadow);
+}
+
+.theme-switch {
+    transition: all 0.3s ease;
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    background-color: rgba(255, 255, 255, 0.2);
+    border: none;
+    cursor: pointer;
+}
+.theme-switch:hover { background-color: rgba(255, 255, 255, 0.3); }
+.theme-switch i { color: var(--header-text); }
+
+footer {
+    background: var(--header-bg);
+    color: var(--header-text);
+    text-align: center;
+    padding: 1rem;
+    margin-top: auto;
+    font-size: 0.875rem;
+}
+
+.liga-selector {
+    background-color: var(--input-bg);
+    color: var(--text-color);
+    border: 1px solid color-mix(in srgb, var(--input-bg) 80%, var(--text-color));
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    margin-right: 1rem;
+}
+
+.team-logo {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    margin-right: 1rem;
+    flex-shrink: 0;
+}
+
+.stadium-logo {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 0.25rem;
+    margin-top: 1rem;
+}
+
+.error-state {
+    background-color: var(--error-bg);
+    color: var(--error-text);
+    padding: 2rem;
+    border-radius: 0.5rem;
+    text-align: center;
+}
+
+.empty-state {
+    padding: 2rem;
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+.loading-spinner { animation: spin 1s linear infinite; }
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Modal styles */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: var(--card-bg);
+    padding: 2rem;
+    border-radius: 0.5rem;
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-close {
+    float: right;
+    cursor: pointer;
+    font-size: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.form-group input, .form-group textarea, .form-group select {
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    border: 1px solid var(--text-secondary);
+    background-color: var(--input-bg);
+    color: var(--text-color);
+}
+
+.btn {
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+    border: none;
+}
+
+.btn-primary {
+    background-color: #4C4CFF;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #3a3aff;
+}
+
+.btn-danger {
+    background-color: #ff4c4c;
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #ff3333;
+}
+
+.btn-success {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.btn-success:hover {
+    background-color: #3e8e41;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.action-buttons .btn {
+    flex: 1;
+    text-align: center;
+    padding: 0.5rem 0.25rem;
+    font-size: 0.8rem;
+}
+
+/* Liga Info Card Styles */
+.liga-info-card {
+    background: var(--card-bg);
+    color: var(--text-color);
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    box-shadow: var(--card-shadow);
+    grid-column: 1 / -1;
+    margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.liga-info-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    width: 100%;
+}
+
+.liga-logo {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    margin-right: 1.5rem;
+}
+
+.liga-trofeo {
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+    object-fit: contain;
+    border-radius: 0.25rem;
+    margin-top: 1rem;
+}
+
+.liga-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.liga-detail-item {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.75rem;
+    border-radius: 0.25rem;
+}
+
+.liga-detail-item strong {
+    display: block;
+    margin-bottom: 0.25rem;
+    color: var(--text-secondary);
+}
