@@ -30,7 +30,7 @@ function App() {
 
           </Routes>
         </main>
-        <footer className="bg-header-bg text-center p-4 text-white text-sm">
+        <footer className="text-center p-4 shadow-lg" style={{ background: "var(--header-bg)", color: "var(--header-text)" }}>
           © 2023 IQSCORE - Todos los derechos reservados
         </footer>
       </div>

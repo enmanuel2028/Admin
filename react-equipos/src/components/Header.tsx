@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMoon, faSun, faCog, faBars } from '@fortawesome/free-solid-svg-icons';
+import { faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
 
 const Header = () => {
   const [theme, setTheme] = useState<"light" | "dark">("dark");
@@ -42,23 +42,27 @@ const Header = () => {
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme((prev: "light" | "dark") => (prev === "dark" ? "light" : "dark"));
+    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
   };
 
   return (
-    <header className="flex justify-between items-center p-4 header-bg shadow-lg">
+    <header className="flex justify-between items-center p-4 shadow-lg" style={{ background: "var(--header-bg)" }}>
       <div className="text-2xl font-bold" style={{ color: "var(--header-text)" }}>
         <i className="fas fa-users mr-2"></i> IQSCORE - Visor de Jugadores
       </div>
-      <div className="flex items-center space-x-2">
-        <button className="theme-switch" id="theme-toggle" onClick={toggleTheme}>
-          <FontAwesomeIcon icon={theme === "dark" ? faSun : faMoon} style={{ color: "var(--header-text)" }} />
-        </button>
-        <button className="md:hidden p-2 rounded theme-switch">
-          <FontAwesomeIcon icon={faBars} style={{ color: "var(--header-text)" }} />
-        </button>
-        <button className="hidden md:block p-2 rounded theme-switch">
-          <FontAwesomeIcon icon={faCog} style={{ color: "var(--header-text)" }} />
+      <div className="flex items-center">
+        <button 
+          className="p-3 rounded-full transition-all duration-300 hover:bg-opacity-20 hover:bg-white" 
+          id="theme-toggle" 
+          onClick={toggleTheme}
+          aria-label="Cambiar tema"
+          title={theme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
+        >
+          <FontAwesomeIcon 
+            icon={theme === "dark" ? faSun : faMoon} 
+            style={{ color: "var(--header-text)" }} 
+            className="text-xl"
+          />
         </button>
       </div>
     </header>

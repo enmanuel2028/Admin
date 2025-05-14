@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faEye, faEdit, faTrashAlt, faPlus, faSpinner,
-  faExclamationTriangle, faTimes, faCheck, faSave
+  faExclamationTriangle, faTimes, faCheck, faSave,
+  faTrophy, faShieldAlt, faEuroSign
 } from '@fortawesome/free-solid-svg-icons';
-import './Players.css';
+import './PlayerHistory.css';
 
 // Define interfaces for our data types
 interface Liga {
@@ -57,6 +58,19 @@ interface Jugador {
   atributos?: string;
 }
 
+// New interfaces for player titles and history
+interface JugadorTitulo {
+  nombre_titulo: string;
+  año: number;
+}
+
+interface JugadorHistorial {
+  nombre_equipo: string;
+  año_inicio: number;
+  año_fin?: number | null;
+  foto_equipo?: string;
+}
+
 interface Notification {
   id: number;
   message: string;
@@ -72,6 +86,12 @@ const PlayersHistory = () => {
   const JUGADOR_API_URL = (jugadorId: number) => `${API_BASE_URL}/jugadores/${jugadorId}`;
   const JUGADORES_API_URL = `${API_BASE_URL}/jugadores`;
   const JUGADOR_DETALLES_API_URL = (jugadorId: number) => `${API_BASE_URL}/jugadordetalles/${jugadorId}`;
+  const JUGADOR_TITULOS_API_URL = (jugadorId: number) => `${API_BASE_URL}/jugadordetalles/${jugadorId}/titulos`;
+  const JUGADOR_HISTORIAL_API_URL = (jugadorId: number) => `${API_BASE_URL}/jugadordetalles/${jugadorId}/historial`;
+  const ADD_JUGADOR_TITULO_API_URL = (jugadorId: number) => `${API_BASE_URL}/jugadordetalles/${jugadorId}/titulo`;
+  const ADD_JUGADOR_HISTORIAL_API_URL = (jugadorId: number) => `${API_BASE_URL}/jugadordetalles/${jugadorId}/historial`;
+  const DELETE_JUGADOR_TITULO_API_URL = (jugadorId: number) => `${API_BASE_URL}/jugadordetalles/${jugadorId}/titulo`;
+  const DELETE_JUGADOR_HISTORIAL_API_URL = (jugadorId: number) => `${API_BASE_URL}/jugadordetalles/${jugadorId}/historial`;
 
   // State variables
   const [ligas, setLigas] = useState<Liga[]>([]);
@@ -87,7 +107,11 @@ const PlayersHistory = () => {
   const [jugadorToEdit, setJugadorToEdit] = useState<Jugador | null>(null);
   const [jugadorToDelete, setJugadorToDelete] = useState<number | null>(null);
   const [jugadorDetails, setJugadorDetails] = useState<any | null>(null);
+  const [jugadorTitulos, setJugadorTitulos] = useState<JugadorTitulo[]>([]);
+  const [jugadorHistorial, setJugadorHistorial] = useState<JugadorHistorial[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [showAddTitleForm, setShowAddTitleForm] = useState<boolean>(false);
+  const [showAddHistoryForm, setShowAddHistoryForm] = useState<boolean>(false);
 
   // Form state
   const [formData, setFormData] = useState<Partial<Jugador>>({
@@ -108,6 +132,20 @@ const PlayersHistory = () => {
     nacionalidad_logo: '',
     caracteristicas: '',
     atributos: ''
+  });
+
+  // Title form state
+  const [titleFormData, setTitleFormData] = useState<JugadorTitulo>({
+    nombre_titulo: '',
+    año: new Date().getFullYear()
+  });
+
+  // History form state
+  const [historyFormData, setHistoryFormData] = useState<JugadorHistorial>({
+    nombre_equipo: '',
+    año_inicio: new Date().getFullYear(),
+    año_fin: null,
+    foto_equipo: ''
   });
 
   // Load ligas on component mount
@@ -223,19 +261,59 @@ const PlayersHistory = () => {
   const loadJugadorDetails = async (jugadorId: number) => {
     try {
       setLoading(true);
-      const response = await fetch(JUGADOR_API_URL(jugadorId));
+      setJugadorTitulos([]);
+      setJugadorHistorial([]);
+      
+      const response = await fetch(JUGADOR_DETALLES_API_URL(jugadorId));
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status} ${response.statusText}`);
       }
       
       const data = await response.json();
       setJugadorDetails(data);
+      
+      // Load titles and history
+      await loadJugadorTitulos(jugadorId);
+      await loadJugadorHistorial(jugadorId);
+      
       setShowPlayerDetailsModal(true);
     } catch (error: any) {
       console.error("Error fetching jugador details:", error);
       addNotification("Error al cargar los detalles del jugador.", 'error');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Load jugador titles
+  const loadJugadorTitulos = async (jugadorId: number) => {
+    try {
+      const response = await fetch(JUGADOR_TITULOS_API_URL(jugadorId));
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status} ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      setJugadorTitulos(data);
+    } catch (error: any) {
+      console.error("Error fetching jugador titles:", error);
+      addNotification("Error al cargar los títulos del jugador.", 'error');
+    }
+  };
+
+  // Load jugador history
+  const loadJugadorHistorial = async (jugadorId: number) => {
+    try {
+      const response = await fetch(JUGADOR_HISTORIAL_API_URL(jugadorId));
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status} ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      setJugadorHistorial(data);
+    } catch (error: any) {
+      console.error("Error fetching jugador history:", error);
+      addNotification("Error al cargar el historial del jugador.", 'error');
     }
   };
 
@@ -260,6 +338,28 @@ const PlayersHistory = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { id, value } = e.target;
     setFormData(prev => ({ ...prev, [id]: value }));
+  };
+
+  // Handle title form input changes
+  const handleTitleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setTitleFormData(prev => ({ 
+      ...prev, 
+      [id === 'ntn' ? 'nombre_titulo' : id === 'nty' ? 'año' : id]: id === 'nty' ? parseInt(value) : value 
+    }));
+  };
+
+  // Handle history form input changes
+  const handleHistoryInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setHistoryFormData(prev => ({ 
+      ...prev, 
+      [id === 'nht' ? 'nombre_equipo' : 
+       id === 'nhs' ? 'año_inicio' : 
+       id === 'nhe' ? 'año_fin' : 
+       id === 'nhp' ? 'foto_equipo' : id]: 
+       (id === 'nhs' || id === 'nhe') ? (value ? parseInt(value) : null) : value 
+    }));
   };
 
   // Open player modal for adding or editing
@@ -310,6 +410,26 @@ const PlayersHistory = () => {
     setShowPlayerModal(true);
   };
 
+  // Toggle add title form
+  const toggleAddTitleForm = () => {
+    setShowAddTitleForm(!showAddTitleForm);
+    setTitleFormData({
+      nombre_titulo: '',
+      año: new Date().getFullYear()
+    });
+  };
+
+  // Toggle add history form
+  const toggleAddHistoryForm = () => {
+    setShowAddHistoryForm(!showAddHistoryForm);
+    setHistoryFormData({
+      nombre_equipo: '',
+      año_inicio: new Date().getFullYear(),
+      año_fin: null,
+      foto_equipo: ''
+    });
+  };
+
   // Close player modal
   const closePlayerModal = () => {
     setShowPlayerModal(false);
@@ -320,6 +440,10 @@ const PlayersHistory = () => {
   const closePlayerDetailsModal = () => {
     setShowPlayerDetailsModal(false);
     setJugadorDetails(null);
+    setJugadorTitulos([]);
+    setJugadorHistorial([]);
+    setShowAddTitleForm(false);
+    setShowAddHistoryForm(false);
   };
 
   // Show confirm delete modal
@@ -375,6 +499,137 @@ const PlayersHistory = () => {
     } catch (error: any) {
       console.error("Error saving jugador:", error);
       addNotification("Error al guardar el jugador.", 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle title form submit
+  const handleTitleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!jugadorDetails?.idJugador) return;
+    
+    try {
+      setLoading(true);
+      
+      const response = await fetch(ADD_JUGADOR_TITULO_API_URL(jugadorDetails.idJugador), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(titleFormData)
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData?.message || `Error ${response.status}`);
+      }
+      
+      // Reload titles
+      await loadJugadorTitulos(jugadorDetails.idJugador);
+      
+      toggleAddTitleForm();
+      addNotification("Título agregado correctamente", 'success');
+    } catch (error: any) {
+      console.error("Error adding title:", error);
+      addNotification(`Error al agregar título: ${error.message}`, 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle history form submit
+  const handleHistorySubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!jugadorDetails?.idJugador) return;
+    
+    if (historyFormData.año_fin && historyFormData.año_fin < historyFormData.año_inicio) {
+      addNotification("Año fin no puede ser menor que Año inicio", 'error');
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      
+      const response = await fetch(ADD_JUGADOR_HISTORIAL_API_URL(jugadorDetails.idJugador), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(historyFormData)
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData?.message || `Error ${response.status}`);
+      }
+      
+      // Reload history
+      await loadJugadorHistorial(jugadorDetails.idJugador);
+      
+      toggleAddHistoryForm();
+      addNotification("Historial agregado correctamente", 'success');
+    } catch (error: any) {
+      console.error("Error adding history:", error);
+      addNotification(`Error al agregar historial: ${error.message}`, 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Delete title
+  const deleteTitle = async (nombreTitulo: string) => {
+    if (!jugadorDetails?.idJugador) return;
+    if (!confirm(`¿Eliminar título "${nombreTitulo}"?`)) return;
+    
+    try {
+      setLoading(true);
+      
+      const response = await fetch(DELETE_JUGADOR_TITULO_API_URL(jugadorDetails.idJugador), {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombreTitulo })
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: `Error ${response.status}` }));
+        throw new Error(errorData.message || `Error ${response.status}`);
+      }
+      
+      // Reload titles
+      await loadJugadorTitulos(jugadorDetails.idJugador);
+      
+      addNotification("Título eliminado correctamente", 'success');
+    } catch (error: any) {
+      console.error("Error deleting title:", error);
+      addNotification(`Error al eliminar título: ${error.message}`, 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Delete history
+  const deleteHistory = async (nombreEquipo: string) => {
+    if (!jugadorDetails?.idJugador) return;
+    if (!confirm(`¿Eliminar historial del equipo "${nombreEquipo}"?`)) return;
+    
+    try {
+      setLoading(true);
+      
+      const response = await fetch(DELETE_JUGADOR_HISTORIAL_API_URL(jugadorDetails.idJugador), {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombreEquipo })
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: `Error ${response.status}` }));
+        throw new Error(errorData.message || `Error ${response.status}`);
+      }
+      
+      // Reload history
+      await loadJugadorHistorial(jugadorDetails.idJugador);
+      
+      addNotification("Historial eliminado correctamente", 'success');
+    } catch (error: any) {
+      console.error("Error deleting history:", error);
+      addNotification(`Error al eliminar historial: ${error.message}`, 'error');
     } finally {
       setLoading(false);
     }
@@ -449,6 +704,12 @@ const PlayersHistory = () => {
     return '€' + new Intl.NumberFormat('de-DE').format(parseFloat(value.toString()));
   };
 
+  // Format date
+  const formatDate = (dateString: string | undefined) => {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
+  };
+
   return (
     <div className="p-4 md:p-6">
       {/* Notifications */}
@@ -503,14 +764,7 @@ const PlayersHistory = () => {
             ))}
           </select>
         </div>
-        <button 
-          className="btn btn-success whitespace-nowrap" 
-          onClick={() => openPlayerModal()}
-          disabled={!currentEquipoId}
-        >
-          <FontAwesomeIcon icon={faPlus} className="mr-2" />
-          Agregar Jugador
-        </button>
+        
       </div>
 
       {/* Loading or Error States */}
@@ -830,7 +1084,7 @@ const PlayersHistory = () => {
               <div className="player-details-info">
                 <h2 className="player-details-name">{jugadorDetails.nombre}</h2>
                 <p className="player-details-team">
-                  {jugadorDetails.equipo_actual || 'Equipo no especificado'} {jugadorDetails.idLiga && <span>({jugadorDetails.liga_nombre})</span>}
+                  {jugadorDetails.equipo_actual || 'Equipo no especificado'} {jugadorDetails.liga && <span>({jugadorDetails.liga})</span>}
                 </p>
                 <div className="flex items-center">
                   <div className={`player-details-position ${getPositionBgClass(jugadorDetails.posicion)}`}>
@@ -853,7 +1107,7 @@ const PlayersHistory = () => {
             
             <div className="player-details-stats">
               <div className="player-details-stat">
-                <div className="player-details-stat-value">{jugadorDetails.partidos || '350'}</div>
+                <div className="player-details-stat-value">{jugadorDetails.partidos_jugados || '0'}</div>
                 <div className="player-details-stat-label">PARTIDOS</div>
               </div>
               <div className="player-details-stat">
@@ -861,80 +1115,247 @@ const PlayersHistory = () => {
                 <div className="player-details-stat-label">GOLES</div>
               </div>
               <div className="player-details-stat">
-                <div className="player-details-stat-value">{jugadorDetails.asist || '0'}</div>
+                <div className="player-details-stat-value">{jugadorDetails.asistencias || '0'}</div>
                 <div className="player-details-stat-label">ASIST</div>
               </div>
               <div className="player-details-stat">
-                <div className="player-details-stat-value">{jugadorDetails.amarillas || '0'}</div>
+                <div className="player-details-stat-value">{jugadorDetails.tarjetas_amarillas || '0'}</div>
                 <div className="player-details-stat-label">AMARILLAS</div>
               </div>
               <div className="player-details-stat">
-                <div className="player-details-stat-value">{jugadorDetails.rojas || '0'}</div>
+                <div className="player-details-stat-value">{jugadorDetails.tarjetas_rojas || '0'}</div>
                 <div className="player-details-stat-label">ROJAS</div>
               </div>
               <div className="player-details-stat">
-                <div className="player-details-stat-value">{jugadorDetails.skills_percent || '5000%'}</div>
-                <div className="player-details-stat-label">SKILLS %</div>
+                <div className="player-details-stat-value">{jugadorDetails.pases_completados || '0'}%</div>
+                <div className="player-details-stat-label">PASES %</div>
               </div>
             </div>
             
-            <div className="player-details-section">
-              <h3>Información Básica</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p><strong>Nacionalidad:</strong> {jugadorDetails.nacionalidad || 'Bélgica'}</p>
-                  <p><strong>Fecha Nacimiento:</strong> {jugadorDetails.fecha_nacimiento || '11 de mayo de 1992'}</p>
-                  <p><strong>Edad:</strong> {jugadorDetails.edad || '31'} años</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <div className="player-details-section">
+                  <h3>Información Básica</h3>
+                  <p><strong>Nacimiento:</strong> {formatDate(jugadorDetails.fecha_nacimiento)}</p>
+                  <p><strong>Edad:</strong> {jugadorDetails.edad ? `${jugadorDetails.edad} años` : 'N/A'}</p>
+                  <p><strong>Nacionalidad:</strong> {jugadorDetails.nacionalidad || 'N/A'} 
+                    {jugadorDetails.nacionalidad_logo && (
+                      <span className="nationality-flag ml-1">
+                        <img src={jugadorDetails.nacionalidad_logo} alt={jugadorDetails.nacionalidad} width="20" />
+                      </span>
+                    )}
+                  </p>
+                  <p><strong>Altura:</strong> {jugadorDetails.altura ? `${jugadorDetails.altura} m` : 'N/A'}</p>
+                  <p><strong>Peso:</strong> {jugadorDetails.peso ? `${jugadorDetails.peso} kg` : 'N/A'}</p>
+                  <p><strong>Pierna:</strong> {jugadorDetails.pierna_habil || 'N/A'}</p>
+                  <p><strong>Pos. Ideal:</strong> {jugadorDetails.posicion_ideal || 'N/A'}</p>
+                  <p><strong>Dorsal:</strong> {jugadorDetails.numero_camiseta ?? 'N/A'}</p>
+                  <p><strong>Valor:</strong> {formatCurrency(jugadorDetails.valor_mercado)}</p>
                 </div>
-                <div>
-                  <p><strong>Nacionalidad:</strong> {jugadorDetails.nacionalidad || 'Bélgica'}</p>
-                  <p><strong>Altura:</strong> {jugadorDetails.altura ? `${jugadorDetails.altura}m` : '1.99 m'}</p>
-                  <p><strong>Peso:</strong> {jugadorDetails.peso ? `${jugadorDetails.peso}kg` : '96.00 kg'}</p>
-                  <p><strong>Pierna Hábil:</strong> {jugadorDetails.pierna_habil || 'Derecha'}</p>
-                  <p><strong>Posición:</strong> {jugadorDetails.posicion || 'Portero'}</p>
-                  <p><strong>Valor:</strong> {formatCurrency(jugadorDetails.valor_mercado) || '€25,000,000'}</p>
-                </div>
               </div>
-            </div>
-            
-            {(jugadorDetails.habilidades || true) && (
-              <div className="player-details-section">
-                <h3>Habilidades</h3>
-                <p>{jugadorDetails.habilidades || 'Visión de juego'}</p>
+              <div>
+                {jugadorDetails.habilidades && (
+                  <div className="player-details-section">
+                    <h3>Habilidades</h3>
+                    <p>{jugadorDetails.habilidades}</p>
+                  </div>
+                )}
+                
+                {jugadorDetails.caracteristicas && (
+                  <div className="player-details-section">
+                    <h3>Características</h3>
+                    <p>{jugadorDetails.caracteristicas}</p>
+                  </div>
+                )}
+                
+                {jugadorDetails.atributos && (
+                  <div className="player-details-section">
+                    <h3>Atributos</h3>
+                    <p>{jugadorDetails.atributos}</p>
+                  </div>
+                )}
               </div>
-            )}
-            
-            {(jugadorDetails.caracteristicas || true) && (
-              <div className="player-details-section">
-                <h3>Características</h3>
-                <p>{jugadorDetails.caracteristicas || 'Líder en defensa'}</p>
-              </div>
-            )}
-            
-            {(jugadorDetails.atributos || true) && (
-              <div className="player-details-section">
-                <h3>Atributos</h3>
-                <p>{jugadorDetails.atributos || 'Alcance, juego aéreo'}</p>
-              </div>
-            )}
-
-            <div className="player-details-section">
-              <h3>Títulos ({jugadorDetails.titulos?.length || 3})</h3>
-              <ul className="list-disc pl-5">
-                <li>Champions League (2022)</li>
-                <li>LaLiga (2020)</li>
-                <li>Premier League (2015)</li>
-              </ul>
             </div>
 
+            {/* Títulos Section */}
             <div className="player-details-section">
-              <h3>Historial ({jugadorDetails.historial?.length || 4})</h3>
-              <ul className="list-disc pl-5">
-                <li>Real Madrid (2018 - 2023)</li>
-                <li>Chelsea (2014 - 2018)</li>
-                <li>Atlético de Madrid (2011 - 2014)</li>
-                <li>KRC Genk (2009 - 2011)</li>
-              </ul>
+              <h3>
+                Títulos ({jugadorTitulos.length}) 
+                <button className="btn btn-success btn-sm ml-2" onClick={toggleAddTitleForm}>
+                  <FontAwesomeIcon icon={faPlus} /> Añadir
+                </button>
+              </h3>
+              
+              {jugadorTitulos.length > 0 ? (
+                <ul className="list-disc pl-5 mt-2 space-y-1">
+                  {jugadorTitulos.map((titulo, index) => (
+                    <li key={index} className="flex justify-between items-center">
+                      <span>
+                        <FontAwesomeIcon icon={faTrophy} className="mr-2 text-yellow-400" /> 
+                        {titulo.nombre_titulo} ({titulo.año})
+                      </span>
+                      <button 
+                        className="btn btn-danger btn-sm" 
+                        onClick={() => deleteTitle(titulo.nombre_titulo)}
+                      >
+                        <FontAwesomeIcon icon={faTrashAlt} />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-gray-500 mt-2">No hay títulos registrados.</p>
+              )}
+              
+              {showAddTitleForm && (
+                <div className="mt-4">
+                  <form id="add-title-form" className="p-3 border rounded bg-[var(--input-bg)]" onSubmit={handleTitleSubmit}>
+                    <h4 className="font-semibold mb-2">Añadir Título</h4>
+                    <div className="form-group">
+                      <label htmlFor="ntn">Nombre:</label>
+                      <input 
+                        type="text" 
+                        id="ntn" 
+                        value={titleFormData.nombre_titulo}
+                        onChange={handleTitleInputChange}
+                        required 
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="nty">Año:</label>
+                      <input 
+                        type="number" 
+                        id="nty" 
+                        value={titleFormData.año}
+                        onChange={handleTitleInputChange}
+                        required 
+                        min="1900" 
+                        max={new Date().getFullYear()} 
+                      />
+                    </div>
+                    <div className="action-buttons">
+                      <button type="submit" className="btn btn-primary">
+                        <FontAwesomeIcon icon={faSave} /> Guardar
+                      </button>
+                      <button type="button" className="btn btn-secondary" onClick={toggleAddTitleForm}>
+                        <FontAwesomeIcon icon={faTimes} /> Cancelar
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              )}
+            </div>
+
+            {/* Historial Section */}
+            <div className="player-details-section">
+              <h3>
+                Historial ({jugadorHistorial.length}) 
+                <button className="btn btn-success btn-sm ml-2" onClick={toggleAddHistoryForm}>
+                  <FontAwesomeIcon icon={faPlus} /> Añadir
+                </button>
+              </h3>
+              
+              {jugadorHistorial.length > 0 ? (
+                <ul className="list-none mt-2 space-y-2">
+                  {jugadorHistorial.map((historial, index) => (
+                    <li key={index} className="flex justify-between items-center p-2 bg-[var(--input-bg)] rounded">
+                      <div>
+                        {historial.foto_equipo ? (
+                          <img 
+                            src={historial.foto_equipo} 
+                            alt={historial.nombre_equipo} 
+                            className="w-8 h-8 object-contain inline-block mr-2 rounded" 
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                            }}
+                          />
+                        ) : (
+                          <FontAwesomeIcon icon={faShieldAlt} className="mr-2 text-gray-500" />
+                        )}
+                        <span className="font-semibold">{historial.nombre_equipo}</span> 
+                        <span className="text-sm text-gray-400 ml-2">
+                          ({historial.año_inicio} - {historial.año_fin || 'Pres.'})
+                        </span>
+                      </div>
+                      <button 
+                        className="btn btn-danger btn-sm" 
+                        onClick={() => deleteHistory(historial.nombre_equipo)}
+                      >
+                        <FontAwesomeIcon icon={faTrashAlt} />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-gray-500 mt-2">No hay historial registrado.</p>
+              )}
+              
+              {showAddHistoryForm && (
+                <div className="mt-4">
+                  <form id="add-history-form" className="p-3 border rounded bg-[var(--input-bg)]" onSubmit={handleHistorySubmit}>
+                    <h4 className="font-semibold mb-2">Añadir Equipo</h4>
+                    <div className="form-group">
+                      <label htmlFor="nht">Equipo:</label>
+                      <input 
+                        type="text" 
+                        id="nht" 
+                        value={historyFormData.nombre_equipo}
+                        onChange={handleHistoryInputChange}
+                        required 
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="form-group">
+                        <label htmlFor="nhs">Año Inicio:</label>
+                        <input 
+                          type="number" 
+                          id="nhs" 
+                          value={historyFormData.año_inicio}
+                          onChange={handleHistoryInputChange}
+                          required 
+                          min="1900" 
+                          max={new Date().getFullYear()} 
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label htmlFor="nhe">Año Fin:</label>
+                        <input 
+                          type="number" 
+                          id="nhe" 
+                          value={historyFormData.año_fin || ''}
+                          onChange={handleHistoryInputChange}
+                          min="1900" 
+                          max={new Date().getFullYear()} 
+                        />
+                      </div>
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="nhp">URL Foto:</label>
+                      <input 
+                        type="url" 
+                        id="nhp" 
+                        value={historyFormData.foto_equipo || ''}
+                        onChange={handleHistoryInputChange}
+                      />
+                    </div>
+                    <div className="action-buttons">
+                      <button type="submit" className="btn btn-primary">
+                        <FontAwesomeIcon icon={faSave} /> Guardar
+                      </button>
+                      <button type="button" className="btn btn-secondary" onClick={toggleAddHistoryForm}>
+                        <FontAwesomeIcon icon={faTimes} /> Cancelar
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              )}
+            </div>
+
+            <div className="action-buttons mt-6">
+              <button className="btn btn-primary" onClick={closePlayerDetailsModal}>
+                <FontAwesomeIcon icon={faTimes} className="mr-2" /> Cerrar
+              </button>
             </div>
           </div>
         </div>
